@@ -1,13 +1,10 @@
 package API;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-
-public class GameMove implements Remote {
+public class GameMove {
 
     public GameMove(int targetX, int targetY) {
-        assert targetX > 0;
-        assert targetY > 0;
+        assert targetX > 0 && targetX < 4;
+        assert targetY > 0 && targetY < 4;
         mTargetX = targetX;
         mTargetY = targetY;
     }
@@ -15,11 +12,11 @@ public class GameMove implements Remote {
     private final int mTargetX;
     private final int mTargetY;
 
-    public int getTargetXPosition() throws RemoteException {
+    public int getTargetXPosition() {
         return mTargetX;
     }
 
-    public int getTargetYPosition() throws RemoteException {
+    public int getTargetYPosition() {
         return mTargetY;
     }
 

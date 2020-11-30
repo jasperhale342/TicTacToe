@@ -9,5 +9,6 @@
 
 rootProject.name = 'tic_tac_toe'
 include 'Common'
-include 'ClientSide'
 include 'ServerSide'
+include 'ClientSide'
+include 'Main'

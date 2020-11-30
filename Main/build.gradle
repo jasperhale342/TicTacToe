@@ -8,4 +8,6 @@ apply plugin: 'java'
 
 dependencies {
     implementation project(":Common")
+    implementation project(":ServerSide")
+    implementation project(":ClientSide")
 }

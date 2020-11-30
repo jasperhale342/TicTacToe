@@ -1,0 +1,3 @@
+cp -r ./Common/build/classes/java/main/* ./Main/build/classes/java/main/
+cp -r ./ClientSide/build/classes/java/main/* ./Main/build/classes/java/main/
+cp -r ./ServerSide/build/classes/java/main/* ./Main/build/classes/java/main/
