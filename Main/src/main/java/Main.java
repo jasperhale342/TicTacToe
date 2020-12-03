@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class Main extends Application {
 
-    final ServerManager srvMgr;
+    private final ServerManager srvMgr;
 
     public Main() {
         this.srvMgr = new ServerManager();

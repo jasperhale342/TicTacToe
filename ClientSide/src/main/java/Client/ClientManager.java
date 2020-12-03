@@ -13,19 +13,25 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 public class ClientManager implements Client {
 
     private MatchmakerServer mMatchmakerServer;
     private GameServer mGameServer;
-    private String playerName;
+    private String mPlayerName;
+    private ClientState mClientState;
 
     public ClientManager(MatchmakerServer matchmakerServer) {
         assert matchmakerServer != null;
         mMatchmakerServer = matchmakerServer;
+        mClientState = ClientState.STARTING;
     }
 
     public void init() {
+        if (mClientState != ClientState.STARTING) {
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("StartPageView.fxml"));
             StartPageController controller = new StartPageController(this, new StartPageModel());
@@ -39,16 +45,11 @@ public class ClientManager implements Client {
 
     @Override
     public void waitForGame(String waitMessage) {
-        System.out.println("Client will wait for game");
-        try {
-            FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("WaitPageView.fxml"));
-            Parent root = loader.load();
-            WaitPageController controller = loader.getController();
-            controller.setWaitMessage(waitMessage);
-            openWindow(root, new Stage(), "Wait for Game");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (mClientState != ClientState.STARTING) {
+            return;
+        } 
+        Platform.runLater(() -> {spawnWaitPage(waitMessage);});
+        mClientState = ClientState.WAITING;
     }
 
     @Override
@@ -69,9 +70,27 @@ public class ClientManager implements Client {
 
     }
 
+    @Override
+    public String getPlayerName() {
+        return mPlayerName;
+    }
+
     public void sendFindGameRequest(String playerName) {
-        this.playerName = playerName;
+        mPlayerName = playerName;
         mMatchmakerServer.requestNewGame(this);
+    }
+
+    private void spawnWaitPage(String waitMessage) {
+        System.out.println("Client will wait for game");
+        try {
+            FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource("WaitPageView.fxml"));
+            Parent root = loader.load();
+            WaitPageController controller = loader.getController();
+            controller.setWaitMessage(waitMessage);
+            openWindow(root, new Stage(), "Wait for Game");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void openWindow(Parent root, Stage stage, String title) {

@@ -15,4 +15,6 @@ public interface Client{
 
     public void endGame(GameState endState);
 
+    public String getPlayerName();
+
 }

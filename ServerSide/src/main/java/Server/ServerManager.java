@@ -9,8 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import API.Client;
 import API.MatchmakerServer;
 import Game.GameManager;
-import javafx.application.Platform;
-
 public class ServerManager implements MatchmakerServer {
 
     private static final String WAIT_MSG = "Please wait while a game is found.";
@@ -38,9 +36,7 @@ public class ServerManager implements MatchmakerServer {
                 continue;
             final Client client = mGameRequests.poll();
             try {
-                Platform.runLater(() -> {
-                    client.waitForGame(WAIT_MSG);
-                });
+                client.waitForGame(WAIT_MSG);
                 mUnmatchedClients.add(client);
                 System.out.println(client + " placed in the lobby.");
             } catch (Exception e) {
@@ -59,7 +55,7 @@ public class ServerManager implements MatchmakerServer {
             final Client client1 = mUnmatchedClients.poll();
             final Client client2 = mUnmatchedClients.poll();
 
-            //TODO: Create GameManager then call startGame on clients
+            // TODO: Create GameManager then call startGame on clients
 
             System.out.println("There are at least two clients waiting for a game.");
         }
