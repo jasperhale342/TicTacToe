@@ -1,16 +1,23 @@
-import java.util.Scanner;
-
-import API.Client;
 import Client.ClientManager;
 import Server.ServerManager;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Main {
+import java.io.IOException;
 
-    private final static String OPTIONS_MSG = "1. Start a new client.\n2. Exit this application (WARNING: kills all clients!).\n";
+public class Main extends Application {
 
-    public static void main(String[] args) {
+    final ServerManager srvMgr;
 
-        final ServerManager srvMgr = new ServerManager();
+    public Main() {
+        this.srvMgr = new ServerManager();
         final Runnable requestReplyRunnable = srvMgr::respondToRequests;
         final Runnable findGamesRunnable = srvMgr::findGames;
 
@@ -19,29 +26,35 @@ public class Main {
 
         replyThread.start();
         findGamesThread.start();
-        
-        final Scanner stdInScanner = new Scanner(System.in);
-
-        System.out.println("Welcome to TicTacToe! Select from one of the following options:");
-        System.out.println(OPTIONS_MSG);
-
-        while (true) {
-            int optionChosen = stdInScanner.nextInt();
-            if (optionChosen == 1) {
-                final ClientManager clientMgr = new ClientManager(srvMgr); //spawn a new client
-                System.out.println("\nStarted another client. Please choose again from the following:");
-                System.out.println(OPTIONS_MSG);
-
-            } else if (optionChosen == 2) {
-                System.out.println("\nExiting application. Goodbye!");
-                srvMgr.cancel();
-                stdInScanner.close();
-                System.exit(-1);
-            
-            } else {
-                System.out.println("\nINVALID INPUT. Please choose from one of the following options:\n" + OPTIONS_MSG);
-            }
-        }
     }
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @FXML
+    public void createClient() {
+        final ClientManager clientMgr = new ClientManager(srvMgr); //spawn a new client
+        Platform.runLater(clientMgr::init);
+        System.out.println("\nStarted another client.");
+    }
+
+    @FXML
+    public void end(ActionEvent event) {
+        System.out.println("\nExiting application. Goodbye!");
+        srvMgr.cancel();
+        Node node = (Node) event.getSource();
+        Stage stage = (Stage) node.getScene().getWindow();
+        stage.close();
+        System.exit(-1);
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(this.getClass().getResource("OpeningScreen.fxml"));
+        Parent root = loader.load();
+        primaryStage.setScene(new Scene(root));
+        primaryStage.setTitle("Tic Tac Toe Launcher");
+        primaryStage.show();
+    }
 }

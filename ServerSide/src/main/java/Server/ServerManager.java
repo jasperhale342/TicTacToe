@@ -1,6 +1,5 @@
 package Server;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import API.Client;
 import API.MatchmakerServer;
 import Game.GameManager;
+import javafx.application.Platform;
 
 public class ServerManager implements MatchmakerServer {
 
@@ -23,25 +23,27 @@ public class ServerManager implements MatchmakerServer {
     private final AtomicBoolean mCancelFlag = new AtomicBoolean();
 
     public ServerManager() {
-        mClients = new ArrayList<Client>();
-        mUnmatchedClients = new LinkedList<Client>();
-        mGameRequests = new LinkedList<Client>();
-        mGameManagers = new ArrayList<GameManager>();
+        mClients = new ArrayList<>();
+        mUnmatchedClients = new LinkedList<>();
+        mGameRequests = new LinkedList<>();
+        mGameManagers = new ArrayList<>();
         mCancelFlag.set(false);
     }
 
     public void respondToRequests() {
         while (true) {
-            if (mCancelFlag.get() == true)
+            if (mCancelFlag.get())
                 break;
             if (mGameRequests.size() < 1)
                 continue;
             final Client client = mGameRequests.poll();
             try {
-                client.waitForGame(WAIT_MSG);
+                Platform.runLater(() -> {
+                    client.waitForGame(WAIT_MSG);
+                });
                 mUnmatchedClients.add(client);
                 System.out.println(client + " placed in the lobby.");
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 mGameRequests.add(client);
                 e.printStackTrace();
             }
@@ -50,7 +52,7 @@ public class ServerManager implements MatchmakerServer {
 
     public void findGames() {
         while (true) {
-            if (mCancelFlag.get() == true)
+            if (mCancelFlag.get())
                 break;
             if (mUnmatchedClients.size() < 2)
                 continue;

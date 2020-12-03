@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="251.0" prefWidth="544.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Pages.WaitPage.WaitPageController">
+   <children>
+      <Label fx:id="waitMessage" alignment="CENTER" contentDisplay="CENTER" layoutX="26.0" layoutY="48.0" prefHeight="105.0" prefWidth="490.0" textAlignment="CENTER" wrapText="true">
+         <font>
+            <Font size="29.0" />
+         </font></Label>
+      <ProgressBar layoutX="26.0" layoutY="196.0" prefHeight="34.0" prefWidth="490.0" />
+   </children>
+</AnchorPane>

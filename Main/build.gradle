@@ -4,10 +4,24 @@
  * This is a general purpose Gradle build.
  * Learn more about Gradle by exploring our samples at https://docs.gradle.org/6.7/samples
  */
-apply plugin: 'java'
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+repositories {
+    mavenCentral()
+}
 
 dependencies {
     implementation project(":Common")
     implementation project(":ServerSide")
     implementation project(":ClientSide")
 }
+
+javafx {
+    version = "15.0.1"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+mainClassName = 'Main'
