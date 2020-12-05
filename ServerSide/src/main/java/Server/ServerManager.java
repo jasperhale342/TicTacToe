@@ -52,12 +52,16 @@ public class ServerManager implements MatchmakerServer {
                 break;
             if (mUnmatchedClients.size() < 2)
                 continue;
-            final Client client1 = mUnmatchedClients.poll();
-            final Client client2 = mUnmatchedClients.poll();
-
-            // TODO: Create GameManager then call startGame on clients
 
             System.out.println("There are at least two clients waiting for a game.");
+
+            final Client client1 = mUnmatchedClients.poll();
+            final Client client2 = mUnmatchedClients.poll();
+            final GameManager gameMgr = new GameManager(this, client1, client2);
+            mGameManagers.add(gameMgr);
+            new Thread(gameMgr::processGameMoveRequests).start();
+            client1.startGame(gameMgr, gameMgr.getGameState());
+            client2.startGame(gameMgr, gameMgr.getGameState());
         }
     }
 
@@ -78,7 +82,7 @@ public class ServerManager implements MatchmakerServer {
     }
 
     @Override
-    public void endGame(Client client) {
+    public void endMatch(Client client) {
 
     }
 

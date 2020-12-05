@@ -1,10 +1,10 @@
 package Pieces;
 
 public class OPiece extends Piece{
-    private PieceType piece; 
+    private final PieceType piece; 
 
     public OPiece(int xPosition, int yPosition){
-        super.setPosition(xPosition, yPosition);
+        super(xPosition, yPosition);
         this.piece = PieceType.TYPE_O;
     }
 

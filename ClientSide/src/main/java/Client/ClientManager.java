@@ -47,15 +47,21 @@ public class ClientManager implements Client {
     public void waitForGame(String waitMessage) {
         if (mClientState != ClientState.STARTING) {
             return;
-        } 
-        Platform.runLater(() -> {spawnWaitPage(waitMessage);});
+        }
+        Platform.runLater(() -> {
+            spawnWaitPage(waitMessage);
+        });
         mClientState = ClientState.WAITING;
     }
 
     @Override
     public void startGame(GameServer gameServer, GameState initialState) {
         // TODO Auto-generated method stub
-
+        if (mClientState != ClientState.WAITING) {
+            return;
+        }
+        mClientState = ClientState.GAMING;
+        System.out.println("Game is starting");
     }
 
     @Override
