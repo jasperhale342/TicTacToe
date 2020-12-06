@@ -6,4 +6,8 @@ public class WaitPageModel {
     public void updateErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 }

@@ -1,6 +1,6 @@
 package Pages.StartPage;
 
-import Client.ClientManager;
+import Client.GameListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 public class StartPageController {
     private StartPageModel model;
-    private final ClientManager clientManager;
+    private GameListener gameListener;
 
     @FXML
     private TextField nameBox;
@@ -16,22 +16,38 @@ public class StartPageController {
     @FXML
     private Label errorDisplay;
 
-    public StartPageController(ClientManager clientManager, StartPageModel model) {
-        assert clientManager != null;
+    public StartPageController(StartPageModel model) {
         assert model != null;
-        this.clientManager = clientManager;
         this.model = model;
+    }
+
+    public boolean attachFindGameListener(GameListener listener) {
+        if (listener != null) {
+            gameListener = listener;
+            return true;
+        }
+        return false;
     }
 
     @FXML
     private void findGameButtonClicked() {
         String playerName = nameBox.getText();
         if (playerName.isEmpty()) {
-            errorDisplay.setText("Please enter name!");
+            setErrorMessage("Please enter name!");
+            displayError();
         } else {
-            clientManager.sendFindGameRequest(playerName);
+            gameListener.onFindGameRequest(playerName);
             Stage stage = (Stage) nameBox.getScene().getWindow();
             stage.close();
         }
     }
+
+    public void displayError() {
+        errorDisplay.setText(model.getErrorMessage());
+    }
+
+    public void setErrorMessage(String error) {
+        model.updateErrorMessage(error);
+    }
+
 }

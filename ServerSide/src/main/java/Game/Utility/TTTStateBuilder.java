@@ -21,6 +21,12 @@ public class TTTStateBuilder {
         return this;
     }
 
+    public TTTStateBuilder setNewState(TTTState tttState) {
+        assert tttState != null;
+        mCurrentTttState = tttState;
+        return this;
+    }
+
     public TTTState build() {
         return mCurrentTttState;
     }

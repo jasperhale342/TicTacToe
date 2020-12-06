@@ -1,6 +1,6 @@
 package Pieces;
 
-public class OPiece extends Piece{
+public class OPiece extends Piece {
     private final PieceType piece; 
 
     public OPiece(int xPosition, int yPosition){

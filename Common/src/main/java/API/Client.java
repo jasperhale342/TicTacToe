@@ -1,8 +1,5 @@
 package API;
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
-
 import State.GameState;
 
 public interface Client{
@@ -16,5 +13,7 @@ public interface Client{
     public void endGame(GameState endState);
 
     public String getPlayerName();
+
+    public void displayErrror(String error);
 
 }

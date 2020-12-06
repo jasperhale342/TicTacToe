@@ -20,12 +20,15 @@ public class Main extends Application {
         this.srvMgr = new ServerManager();
         final Runnable requestReplyRunnable = srvMgr::respondToRequests;
         final Runnable findGamesRunnable = srvMgr::findGames;
+        final Runnable endMatchRunnable = srvMgr::processEndMatchEvents;
 
         final Thread replyThread = new Thread(requestReplyRunnable);
         final Thread findGamesThread = new Thread(findGamesRunnable);
+        final Thread endMatchThread = new Thread(endMatchRunnable);
 
         replyThread.start();
         findGamesThread.start();
+        endMatchThread.start();
     }
 
     public static void main(String[] args) {

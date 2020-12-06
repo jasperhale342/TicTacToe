@@ -29,7 +29,9 @@ public class GameManager implements GameServer {
     private final AtomicBoolean mMatchOverFlag = new AtomicBoolean();
     private final Object mMutex = new Object();
     private final TTTStateBuilder mTTTStateBuilder;
-    private boolean mGameEnded;
+    private volatile boolean mGameEnded;
+    private volatile boolean mClientOneRematchRequested;
+    private volatile boolean mClientTwoRematchRequested;
 
     public GameManager(ServerManager serverManager, Client clientOne, Client clientTwo) {
         assert serverManager != null;
@@ -47,6 +49,8 @@ public class GameManager implements GameServer {
         mGameState = new GameState(mClientWithTurn.getPlayerName() + " has the turn.", new TTTState());
         mTTTStateBuilder = new TTTStateBuilder(mGameState.getTTTState());
         mGameEnded = false;
+        mClientOneRematchRequested = false;
+        mClientTwoRematchRequested = false;
     }
 
     @Override
@@ -60,8 +64,13 @@ public class GameManager implements GameServer {
 
     @Override
     public void requestRematch(Client client) {
-        // TODO Auto-generated method stub
-
+        if (!mGameEnded)
+            return;
+        if (client == mClientOne) {
+            mClientOneRematchRequested = true;
+        } else if (client == mClientTwo) {
+            mClientTwoRematchRequested = true;
+        }
     }
 
     @Override
@@ -71,13 +80,12 @@ public class GameManager implements GameServer {
     }
 
     public void processGameMoveRequests() {
-        // TODO: Add caching of previous states
         while (true) {
             synchronized (mMutex) {
                 if (mMatchOverFlag.get())
                     break;
 
-                if (mGameEnded) 
+                if (mGameEnded)
                     continue;
 
                 if (mClientRequests.get(mClientWithTurn).size() < 1)
@@ -86,7 +94,9 @@ public class GameManager implements GameServer {
                 System.out.println("Processing client request in Game Manager.");
                 final GameMove gameMove = mClientRequests.get(mClientWithTurn).poll();
 
+                assert gameMove != null;
                 if (!RuleChecker.isMoveValid(gameMove, mGameState.getTTTState())) {
+                    mClientWithTurn.displayErrror("Not a valid move!");
                     continue;
                 }
 
@@ -100,8 +110,11 @@ public class GameManager implements GameServer {
                 final TTTState newTttState = mTTTStateBuilder.addPiece(newPiece).build();
                 final Client clientNotWithTurn = (mClientWithTurn == mClientOne) ? mClientTwo : mClientOne;
 
-                if (RuleChecker.isGameOver(newTttState)) {
-                    mGameState = new GameState(mClientWithTurn.getPlayerName() + " won. Game over.", newTttState);
+                if (RuleChecker.isGameOver(newTttState) || RuleChecker.isTied(newTttState)) {
+                    final String message = (RuleChecker.isGameOver(newTttState))
+                            ? mClientWithTurn.getPlayerName() + " won. Game over."
+                            : "The game is tied. Game over.";
+                    mGameState = new GameState(message, newTttState);
                     mClientWithTurn.endGame(mGameState);
                     clientNotWithTurn.endGame(mGameState);
                     mGameEnded = true;
@@ -117,23 +130,40 @@ public class GameManager implements GameServer {
 
     public void processRematchRequests() {
         while (true) {
-            synchronized (mMutex) {
+            if (mMatchOverFlag.get())
+                break;
+            if (!mGameEnded)
+                continue;
+            if (!mClientOneRematchRequested || !mClientTwoRematchRequested)
+                continue;
 
+            synchronized (mMutex) {
+                mGameEnded = false;
+                mClientWithTurn = mClientOne;
+                mClientRequests.clear();
+                mClientRequests.put(mClientOne, new ConcurrentLinkedQueue<GameMove>());
+                mClientRequests.put(mClientTwo, new ConcurrentLinkedQueue<GameMove>());
+                mGameState = new GameState(mClientWithTurn.getPlayerName() + " has the turn.", new TTTState());
+                mTTTStateBuilder.setNewState(mGameState.getTTTState());
+                mClientOneRematchRequested = false;
+                mClientTwoRematchRequested = false;
+                mClientOne.startGame(this, mGameState);
+                mClientTwo.startGame(this, mGameState);
             }
         }
     }
 
-    public void processEndMatchRequests() {
-        while (true) {
-            synchronized (mMutex) {
-                
-            }
+    public void processEndMatchRequest() {
+        synchronized (mMutex) {
+            final TTTState tttState = mGameState.getTTTState();
+            mGameState = new GameState("Game over due to a player leaving. No rematch.", tttState);
         }
-
     }
 
     public void endMatch() {
-        mMatchOverFlag.set(true);
+        final boolean oldValue = mMatchOverFlag.getAndSet(true);
+        if (!oldValue && !mGameEnded)
+            processEndMatchRequest();
     }
 
     public GameState getGameState() {
@@ -142,4 +172,11 @@ public class GameManager implements GameServer {
         }
     }
 
+    public Client getClientOne() {
+        return mClientOne;
+    }
+
+    public Client getClientTwo() {
+        return mClientTwo;
+    }
 }

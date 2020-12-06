@@ -1,3 +1,0 @@
-./gradlew clean
-./gradlew build
-./copy_all_class_files

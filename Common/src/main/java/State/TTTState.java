@@ -88,6 +88,12 @@ public class TTTState {
      * @return List holding all pieces.
      */
     public List<Piece> getAllPieces() {
-        return new ArrayList<Piece>(Arrays.asList(mPieces));
+        List<Piece> pieceList = new ArrayList<>();
+        for (Piece piece : mPieces) {
+            if (piece != null) {
+                pieceList.add(piece);
+            }
+        }
+        return pieceList;
     }
 }

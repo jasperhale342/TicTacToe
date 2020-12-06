@@ -10,11 +10,15 @@ public class WaitPageController {
     private Label waitMessage;
 
     public void setWaitMessage(String waitMessage) {
-        this.waitMessage.setText(waitMessage);
+        model.updateErrorMessage(waitMessage);
     }
 
     public void setModel(WaitPageModel model) {
         assert model != null;
         this.model = model;
+    }
+
+    public void updateView() {
+        this.waitMessage.setText(model.getErrorMessage());
     }
 }

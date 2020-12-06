@@ -7,5 +7,6 @@ public enum ClientState {
     STARTING,
     WAITING,
     GAMING,
-    DONE;
+    DONE,
+    REMATCH;
 }
